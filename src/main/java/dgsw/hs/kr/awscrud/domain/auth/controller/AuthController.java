@@ -2,15 +2,14 @@ package dgsw.hs.kr.awscrud.domain.auth.controller;
 
 import dgsw.hs.kr.awscrud.domain.auth.dto.AuthMemberResponse;
 import dgsw.hs.kr.awscrud.domain.auth.dto.LoginRequest;
+import dgsw.hs.kr.awscrud.domain.auth.dto.LoginResponse;
 import dgsw.hs.kr.awscrud.domain.auth.dto.SignupRequest;
 import dgsw.hs.kr.awscrud.domain.auth.service.AuthService;
-import dgsw.hs.kr.awscrud.global.security.LoginMember;
-import dgsw.hs.kr.awscrud.global.security.SessionConst;
-import dgsw.hs.kr.awscrud.global.security.SessionUtils;
-import jakarta.servlet.http.HttpSession;
+import dgsw.hs.kr.awscrud.global.security.auth.AuthDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,21 +31,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthMemberResponse login(@Valid @RequestBody LoginRequest request, HttpSession session) {
-        LoginMember loginMember = authService.login(request);
-        session.setAttribute(SessionConst.LOGIN_MEMBER, loginMember);
-        return new AuthMemberResponse(loginMember.id(), loginMember.username());
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(HttpSession session) {
-        session.invalidate();
+    public void logout() {
     }
 
     @GetMapping("/me")
-    public AuthMemberResponse me(HttpSession session) {
-        LoginMember loginMember = SessionUtils.getLoginMember(session);
-        return authService.getMember(loginMember.id());
+    public AuthMemberResponse me(@AuthenticationPrincipal AuthDetails authDetails) {
+        return authService.getMember(authDetails.getMember().getId());
     }
 }

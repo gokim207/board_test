@@ -44,19 +44,28 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse update(Long boardId, BoardUpdateRequest request) {
+    public BoardResponse update(Long boardId, Long memberId, BoardUpdateRequest request) {
         Board board = findBoard(boardId);
+        validateWriter(board, memberId);
         board.update(request.title(), request.content());
         return BoardResponse.from(board);
     }
 
     @Transactional
-    public void delete(Long boardId) {
-        boardRepository.delete(findBoard(boardId));
+    public void delete(Long boardId, Long memberId) {
+        Board board = findBoard(boardId);
+        validateWriter(board, memberId);
+        boardRepository.delete(board);
     }
 
     private Board findBoard(Long boardId) {
         return boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."));
+    }
+
+    private void validateWriter(Board board, Long memberId) {
+        if (!board.getMember().getId().equals(memberId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 수정 또는 삭제할 수 있습니다.");
+        }
     }
 }

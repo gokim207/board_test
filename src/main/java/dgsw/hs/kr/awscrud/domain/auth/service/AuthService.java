@@ -2,10 +2,11 @@ package dgsw.hs.kr.awscrud.domain.auth.service;
 
 import dgsw.hs.kr.awscrud.domain.auth.dto.AuthMemberResponse;
 import dgsw.hs.kr.awscrud.domain.auth.dto.LoginRequest;
+import dgsw.hs.kr.awscrud.domain.auth.dto.LoginResponse;
 import dgsw.hs.kr.awscrud.domain.auth.dto.SignupRequest;
 import dgsw.hs.kr.awscrud.domain.auth.entity.Member;
 import dgsw.hs.kr.awscrud.domain.auth.repository.MemberRepository;
-import dgsw.hs.kr.awscrud.global.security.LoginMember;
+import dgsw.hs.kr.awscrud.global.security.jwt.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public AuthMemberResponse signup(SignupRequest request) {
@@ -36,7 +38,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public LoginMember login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         Member member = memberRepository.findByUsername(request.username())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."));
 
@@ -44,7 +46,12 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        return new LoginMember(member.getId(), member.getUsername());
+        return new LoginResponse(
+                jwtProvider.createAccessToken(member.getId()),
+                "Bearer",
+                member.getId(),
+                member.getUsername()
+        );
     }
 
     @Transactional(readOnly = true)
