@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -17,15 +18,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private static final List<String> WHITE_LIST = List.of(
             "/health",
-            "/api/auth/signup",
-            "/api/auth/login",
-            "/api/board/**",
+            "/api/auth/",
             "/swagger-ui",
             "/swagger-ui.html",
             "/api-docs",
@@ -48,9 +48,17 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         try {
+            String requestUri = request.getRequestURI();
             String token = jwtExtractor.resolveToken(request);
+
+            log.info("JWT filter request uri={}, hasAuthorizationHeader={}, tokenResolved={}",
+                    requestUri,
+                    request.getHeader("Authorization") != null,
+                    token != null);
+
             if (token != null) {
                 SecurityContextHolder.getContext().setAuthentication(jwtExtractor.getAuthentication(token));
+                log.info("JWT authentication success for uri={}", requestUri);
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException exception) {
