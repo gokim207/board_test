@@ -26,12 +26,9 @@ public class BoardService {
     private final S3Uploader s3Uploader;
 
     @Transactional
-    public BoardResponse create(Long memberId, BoardCreateRequest request, MultipartFile image) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."));
-
+    public BoardResponse create(BoardCreateRequest request, MultipartFile image) {
         String imageUrl = s3Uploader.upload(image, "boards");
-        Board board = new Board(request.title(), request.content(), imageUrl, member);
+        Board board = new Board(request.title(), request.content(), imageUrl, null);
         return BoardResponse.from(boardRepository.save(board));
     }
 

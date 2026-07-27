@@ -19,7 +19,7 @@ public record BoardResponse(
                 board.getTitle(),
                 board.getContent(),
                 board.getImageUrl(),
-                board.getMember().getUsername(),
+                board.getMember() != null ? board.getMember().getUsername() : "anonymous",
                 board.getCreatedAt(),
                 board.getUpdatedAt()
         );

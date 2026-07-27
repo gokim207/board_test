@@ -26,10 +26,9 @@ public class BoardController {
     @ResponseStatus(HttpStatus.CREATED)
     public BoardResponse createBoard(
             @Valid @RequestPart("request") BoardCreateRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image,
-            @AuthenticationPrincipal AuthDetails authDetails
+            @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        return boardService.create(authDetails.getMember().getId(), request, image);
+        return boardService.create(request, image);
     }
 
     @GetMapping
