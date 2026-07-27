@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,10 +25,11 @@ public class BoardController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public BoardResponse createBoard(
-            @Valid @ModelAttribute BoardCreateRequest request,
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        return boardService.create(request, image);
+        return boardService.create(new BoardCreateRequest(title, content), image);
     }
 
     @GetMapping
