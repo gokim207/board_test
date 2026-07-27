@@ -36,8 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/health",
-                                "/api/auth/signup",
-                                "/api/auth/login",
+                                "/api/auth/**",
+                                "/api/boards/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/api-docs/**",

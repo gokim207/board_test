@@ -25,6 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/health",
             "/api/auth/signup",
             "/api/auth/login",
+            "/api/board/**",
             "/swagger-ui",
             "/swagger-ui.html",
             "/api-docs",
