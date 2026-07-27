@@ -5,6 +5,8 @@ import dgsw.hs.kr.awscrud.domain.board.dto.BoardResponse;
 import dgsw.hs.kr.awscrud.domain.board.dto.BoardUpdateRequest;
 import dgsw.hs.kr.awscrud.domain.board.service.BoardService;
 import dgsw.hs.kr.awscrud.global.security.auth.AuthDetails;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,14 +23,15 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public BoardResponse createBoard(
-            @Valid @RequestPart("request") BoardCreateRequest request,
+            @RequestParam("request") String requestJson,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        return boardService.create(request, image);
+        return boardService.create(parseBoardCreateRequest(requestJson), image);
     }
 
     @GetMapping
@@ -57,5 +60,25 @@ public class BoardController {
             @AuthenticationPrincipal AuthDetails authDetails
     ) {
         boardService.delete(boardId, authDetails.getMember().getId());
+    }
+
+    private BoardCreateRequest parseBoardCreateRequest(String requestJson) {
+        try {
+            BoardCreateRequest request = objectMapper.readValue(requestJson, BoardCreateRequest.class);
+
+            if (request.title() == null || request.title().isBlank()) {
+                throw new IllegalArgumentException("제목은 필수입니다.");
+            }
+            if (request.content() == null || request.content().isBlank()) {
+                throw new IllegalArgumentException("내용은 필수입니다.");
+            }
+
+            return request;
+        } catch (JsonProcessingException | IllegalArgumentException exception) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "request 파트는 유효한 JSON 형식이어야 합니다."
+            );
+        }
     }
 }
