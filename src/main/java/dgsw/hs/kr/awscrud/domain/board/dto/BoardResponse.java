@@ -8,6 +8,7 @@ public record BoardResponse(
         Long id,
         String title,
         String content,
+        String imageUrl,
         String writer,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -17,6 +18,7 @@ public record BoardResponse(
                 board.getId(),
                 board.getTitle(),
                 board.getContent(),
+                board.getImageUrl(),
                 board.getMember().getUsername(),
                 board.getCreatedAt(),
                 board.getUpdatedAt()

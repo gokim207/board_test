@@ -23,6 +23,9 @@ public class Board {
     @Column(nullable = false)
     private String content;
 
+    @Column
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
@@ -33,9 +36,10 @@ public class Board {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    public Board(String title, String content, Member member) {
+    public Board(String title, String content, String imageUrl, Member member) {
         this.title = title;
         this.content = content;
+        this.imageUrl = imageUrl;
         this.member = member;
     }
 

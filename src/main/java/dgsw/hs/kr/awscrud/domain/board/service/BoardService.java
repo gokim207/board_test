@@ -7,10 +7,12 @@ import dgsw.hs.kr.awscrud.domain.board.dto.BoardResponse;
 import dgsw.hs.kr.awscrud.domain.board.dto.BoardUpdateRequest;
 import dgsw.hs.kr.awscrud.domain.board.entity.Board;
 import dgsw.hs.kr.awscrud.domain.board.repository.BoardRepository;
+import dgsw.hs.kr.awscrud.global.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -21,13 +23,15 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final S3Uploader s3Uploader;
 
     @Transactional
-    public BoardResponse create(Long memberId, BoardCreateRequest request) {
+    public BoardResponse create(Long memberId, BoardCreateRequest request, MultipartFile image) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."));
 
-        Board board = new Board(request.title(), request.content(), member);
+        String imageUrl = s3Uploader.upload(image, "boards");
+        Board board = new Board(request.title(), request.content(), imageUrl, member);
         return BoardResponse.from(boardRepository.save(board));
     }
 

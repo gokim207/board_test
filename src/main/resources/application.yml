@@ -16,6 +16,16 @@ spring:
         format_sql: true
     show-sql: true
 
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      s3:
+        bucket: dev-test-backend-sever
+      region:
+        static: ap-northeast-2
+
 server:
   port: 80
 

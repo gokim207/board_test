@@ -8,8 +8,11 @@ import dgsw.hs.kr.awscrud.global.security.auth.AuthDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,13 +23,14 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public BoardResponse createBoard(
-            @Valid @RequestBody BoardCreateRequest request,
+            @Valid @ModelAttribute BoardCreateRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image,
             @AuthenticationPrincipal AuthDetails authDetails
     ) {
-        return boardService.create(authDetails.getMember().getId(), request);
+        return boardService.create(authDetails.getMember().getId(), request, image);
     }
 
     @GetMapping
