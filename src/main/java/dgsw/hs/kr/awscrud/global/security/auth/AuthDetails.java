@@ -16,6 +16,10 @@ public class AuthDetails implements UserDetails {
 
     private final Member member;
 
+    public Member getUser() {
+        return member;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
