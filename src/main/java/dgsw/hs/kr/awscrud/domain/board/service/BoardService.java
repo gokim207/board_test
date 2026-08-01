@@ -3,9 +3,6 @@ package dgsw.hs.kr.awscrud.domain.board.service;
 import dgsw.hs.kr.awscrud.domain.auth.entity.Member;
 import dgsw.hs.kr.awscrud.domain.auth.repository.MemberRepository;
 import dgsw.hs.kr.awscrud.global.security.auth.UserSessionHolder;
-import io.awspring.cloud.s3.ObjectMetadata;
-import io.awspring.cloud.s3.S3Operations;
-import io.awspring.cloud.s3.S3Resource;
 import dgsw.hs.kr.awscrud.domain.board.dto.BoardCreateRequest;
 import dgsw.hs.kr.awscrud.domain.board.dto.BoardResponse;
 import dgsw.hs.kr.awscrud.domain.board.dto.BoardUpdateRequest;
@@ -30,38 +27,37 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final UserSessionHolder userSessionHolder;
-    private final S3Operations s3Operations;
 
 
-    @Value("${spring.cloud.aws.s3.bucket}")
-    private String bucket;
-
-    @Transactional
-    public BoardResponse create(BoardCreateRequest request, MultipartFile image) {
-        String originFilename = image.getOriginalFilename();
-        String substring = originFilename.substring(originFilename.lastIndexOf(".") + 1);
-
-        String fileName = Instant.now().getEpochSecond() + substring;
-        String imageUrl = "";
-
-        try {
-            InputStream inputStream = image.getInputStream();
-            S3Resource upload = s3Operations.upload(bucket, fileName, inputStream,
-                    ObjectMetadata.builder()
-                            .contentType(image.getContentType())
-                            .build());
-            imageUrl = upload.getURL().toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Member sessionUser = userSessionHolder.getUser();
-        Member member = memberRepository.findByUsername(sessionUser.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-
-        Board board = new Board(request.title(), request.content(), imageUrl, member);
-        return BoardResponse.from(boardRepository.save(board));
-    }
+//    @Value("${spring.cloud.aws.s3.bucket}")
+//    private String bucket;
+//
+//    @Transactional
+//    public BoardResponse create(BoardCreateRequest request, MultipartFile image) {
+//        String originFilename = image.getOriginalFilename();
+//        String substring = originFilename.substring(originFilename.lastIndexOf(".") + 1);
+//
+//        String fileName = Instant.now().getEpochSecond() + substring;
+//        String imageUrl = "";
+//
+//        try {
+//            InputStream inputStream = image.getInputStream();
+//            S3Resource upload = s3Operations.upload(bucket, fileName, inputStream,
+//                    ObjectMetadata.builder()
+//                            .contentType(image.getContentType())
+//                            .build());
+//            imageUrl = upload.getURL().toString();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        Member sessionUser = userSessionHolder.getUser();
+//        Member member = memberRepository.findByUsername(sessionUser.getUsername())
+//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+//
+//        Board board = new Board(request.title(), request.content(), imageUrl, member);
+//        return BoardResponse.from(boardRepository.save(board));
+//    }
 
     @Transactional(readOnly = true)
     public List<BoardResponse> getAll() {

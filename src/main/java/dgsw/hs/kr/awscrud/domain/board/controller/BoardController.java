@@ -22,15 +22,15 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public BoardResponse createBoard(
-            @RequestPart("title") String title,
-            @RequestPart("content") String content,
-            @RequestPart(value = "image", required = false) MultipartFile image
-    ) {
-        return boardService.create(new BoardCreateRequest(title, content), image);
-    }
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public BoardResponse createBoard(
+//            @RequestPart("title") String title,
+//            @RequestPart("content") String content,
+//            @RequestPart(value = "image", required = false) MultipartFile image
+//    ) {
+//        return boardService.create(new BoardCreateRequest(title, content), image);
+//    }
 
     @GetMapping
     public List<BoardResponse> getBoards() {
