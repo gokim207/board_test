@@ -38,6 +38,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:4.0.2'
 }
 
 tasks.named('test') {
