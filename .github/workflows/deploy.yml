@@ -64,15 +64,21 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
-          envs: AWS_REGION,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,IMAGE_URI
+          envs: AWS_REGION,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_ACCESS_KEY,AWS_SECRET_KEY,IMAGE_URI
           script: |
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $(echo "$IMAGE_URI" | cut -d/ -f1)
             docker stop ${{ env.CONTAINER_NAME }} || true
             docker rm ${{ env.CONTAINER_NAME }} || true
             docker pull $IMAGE_URI
-            docker run -d --name ${{ env.CONTAINER_NAME }} --restart unless-stopped -p 80:80 $IMAGE_URI
+            docker run -d --name ${{ env.CONTAINER_NAME }} --restart unless-stopped \
+              -e AWS_ACCESS_KEY="$AWS_ACCESS_KEY" \
+              -e AWS_SECRET_KEY="$AWS_SECRET_KEY" \
+              -e AWS_REGION="$AWS_REGION" \
+              -p 80:80 $IMAGE_URI
