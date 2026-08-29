@@ -33,6 +33,14 @@ jobs:
           ${{ secrets.APPLICATION_YML }}
           EOF
 
+      - name: application.yml 확인
+        run: |
+          grep -n 'access-key:' ./src/main/resources/application.yml
+          grep -n 'secret-key:' ./src/main/resources/application.yml
+          grep -n 'bucket:' ./src/main/resources/application.yml
+          grep -n '\${AWS_ACCESS_KEY_ID}' ./src/main/resources/application.yml
+          grep -n '\${AWS_SECRET_ACCESS_KEY}' ./src/main/resources/application.yml
+
       - name: 테스트 및 빌드하기
         run: |
           chmod +x ./gradlew
